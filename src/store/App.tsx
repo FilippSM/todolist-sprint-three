@@ -29,6 +29,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
 import { useAppSelector } from '../common/hooks/useAppSelector'
 import { useAppDispatch } from '../common/hooks/useAppDispath'
+import { selectTodolists } from '../model/todolists-selectors'
+import { selectTasks } from '../model/tasks-selectors'
 
 export type Todolist = {
   id: string
@@ -51,8 +53,8 @@ type ThemeMode = 'dark' | 'light'
 export const App = () => {
 /*   const todolists = useSelector<RootState, Todolist[]>((state) => state.todolists)
   const tasks = useSelector<RootState, TasksState>((state) => state.tasks) */
-  const todolists = useAppSelector((state) => state.todolists)
-  const tasks = useAppSelector((state) => state.tasks)
+  const todolists = useAppSelector(selectTodolists)
+  const tasks = useAppSelector(selectTasks)
   
 /*   const dispath = Dispatch() */
   const dispath = useAppDispatch()
