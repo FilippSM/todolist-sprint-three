@@ -1,5 +1,5 @@
 import { beforeEach, expect, test } from 'vitest'
-import type {TasksState} from '../App'
+import type {TasksState} from '../store/App'
 import {
   changeTaskStatusAC, changeTaskTitleAC,
   createTaskAC,
