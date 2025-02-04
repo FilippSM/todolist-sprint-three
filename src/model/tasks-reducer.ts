@@ -24,7 +24,7 @@ export const tasksReducer = createReducer(initialState, builder => {
         }
       })
       .addCase(createTaskAC, (state, action) => {
-        state[action.payload.todolistId].push({title: action.payload.title, isDone: false, id: nanoid()})
+        state[action.payload.todolistId].unshift({title: action.payload.title, isDone: false, id: nanoid()})
       })
       .addCase(changeTaskStatusAC, (state, action) => {
         const index = state[action.payload.todolistId].findIndex(todolist => todolist.id === action.payload.taskId)
