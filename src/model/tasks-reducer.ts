@@ -27,13 +27,13 @@ export const tasksReducer = createReducer(initialState, builder => {
         state[action.payload.todolistId].unshift({title: action.payload.title, isDone: false, id: nanoid()})
       })
       .addCase(changeTaskStatusAC, (state, action) => {
-        const index = state[action.payload.todolistId].findIndex(todolist => todolist.id === action.payload.taskId)
+        const index = state[action.payload.todolistId].findIndex(task => task.id === action.payload.taskId)
         if (index !== -1) {
           state[action.payload.todolistId][index].isDone = action.payload.isDone
         }
       })
       .addCase(changeTaskTitleAC, (state, action) => {
-        const index = state[action.payload.todolistId].findIndex(todolist => todolist.id === action.payload.taskId)
+        const index = state[action.payload.todolistId].findIndex(task => task.id === action.payload.taskId)
         if (index !== -1) {
           state[action.payload.todolistId][index].title = action.payload.title
         }
