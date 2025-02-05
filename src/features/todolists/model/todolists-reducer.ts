@@ -1,15 +1,12 @@
 import {createAction, createReducer, nanoid} from '@reduxjs/toolkit'
-import type {FilterValues, Todolist} from '../app/App'
+import type {FilterValues, Todolist} from '../../../app/App'
 
-export const deleteTodolistAC = createAction<{ id: string }>('todolists/deleteTodolist')
+export const deleteTodolistAC = createAction<{id: string}>('todolists/deleteTodolist')
 export const createTodolistAC = createAction('todolists/createTodolist', (title: string) => {
   return {payload: {title, id: nanoid()}}
 })
-export const changeTodolistTitleAC = createAction<{ id: string, title: string }>('todolists/changeTodolistTitle')
-export const changeTodolistFilterAC = createAction<{
-  id: string,
-  filter: FilterValues
-}>('todolists/changeTodolistFilter')
+export const changeTodolistTitleAC = createAction<{id: string, title: string}>('todolists/changeTodolistTitle')
+export const changeTodolistFilterAC = createAction<{id: string, filter: FilterValues}>('todolists/changeTodolistFilter')
 
 const initialState: Todolist[] = []
 
@@ -22,7 +19,7 @@ export const todolistsReducer = createReducer(initialState, builder => {
         }
       })
       .addCase(createTodolistAC, (state, action) => {
-        state.push({...action.payload, filter: 'all'})
+        state.push({ ...action.payload, filter: 'all' })
       })
       .addCase(changeTodolistTitleAC, (state, action) => {
         const index = state.findIndex(todolist => todolist.id === action.payload.id)
