@@ -1,9 +1,9 @@
 import {useAppDispatch} from '@/common/hooks/useAppDispatch'
-import {FilterButtons} from '@/features/todolists/ui/Todolists/TodolistItem/FilterButtons/FilterButtons'
+import {FilterButtons} from './FilterButtons/FilterButtons'
 import {createTaskAC} from '@/features/todolists/model/tasks-reducer'
-import {Tasks} from '@/features/todolists/ui/Todolists/TodolistItem/Tasks/Tasks'
-import {TodolistTitle} from '@/features/todolists/ui/Todolists/TodolistItem/TodolistTitle/TodolistTitle'
-import type {Todolist} from '@/app/App'
+import type {Todolist} from '@/features/todolists/model/todolists-reducer'
+import {Tasks} from './Tasks/Tasks'
+import {TodolistTitle} from './TodolistTitle/TodolistTitle'
 import {CreateItemForm} from '@/common/components/CreateItemForm/CreateItemForm'
 
 type Props = {

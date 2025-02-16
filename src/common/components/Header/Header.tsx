@@ -17,11 +17,11 @@ export const Header = () => {
 
   const dispatch = useAppDispatch()
 
-  const changeMode = () => {
-    dispatch(changeThemeModeAC({themeMode: themeMode === 'light' ? 'dark' : 'light'}))
-  }
-
   const theme = getTheme(themeMode)
+
+  const changeMode = () => {
+    dispatch(changeThemeModeAC({themeMode: themeMode == 'light' ? 'dark' : 'light'}))
+  }
 
   return (
       <AppBar position="static" sx={{mb: '30px'}}>

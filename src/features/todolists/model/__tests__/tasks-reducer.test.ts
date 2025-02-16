@@ -1,10 +1,9 @@
 import { beforeEach, expect, test } from 'vitest'
-import type {TasksState} from '@/app/App'
 import {
   changeTaskStatusAC, changeTaskTitleAC,
   createTaskAC,
   deleteTaskAC,
-  tasksReducer
+  tasksReducer, type TasksState
 } from '../tasks-reducer'
 import {createTodolistAC, deleteTodolistAC} from '../todolists-reducer'
 
