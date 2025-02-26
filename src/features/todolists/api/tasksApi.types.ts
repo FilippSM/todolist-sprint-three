@@ -19,4 +19,11 @@ export type GetTasksResponse = {
   error: string | null
 }
 
-export type UpdateTaskModel = Required<Task>
+export type UpdateTaskModel = {
+  title: string
+  description: string | null
+  status: TaskStatus
+  priority: TaskPriority
+  startDate: string | null
+  deadline: string | null
+}

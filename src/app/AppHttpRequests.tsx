@@ -1,11 +1,11 @@
 import { CreateItemForm, EditableSpan } from "@/common/components"
-import { TaskStatus } from "@/common/enums/enums"
-import { tasksApi } from "@/features/todolists/api/tasksApi"
-import type { Task, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types"
 import { type ChangeEvent, type CSSProperties, useEffect, useState } from "react"
 import Checkbox from "@mui/material/Checkbox"
+import { tasksApi } from "@/features/todolists/api/tasksApi"
+import { Task, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
+import { TaskStatus } from "@/common/enums/enums"
 
 export const AppHttpRequests = () => {
   const [todolists, setTodolists] = useState<Todolist[]>([])
@@ -22,6 +22,34 @@ export const AppHttpRequests = () => {
       })
     })
   }, [])
+  useEffect(() => {
+    todolistsApi.getTodolists().then((res) => {
+      const todolists = res.data
+      setTodolists(todolists)
+      todolists.forEach((todolist) => {
+        tasksApi.getTasks(todolist.id).then((res) => {
+          setTasks({ ...tasks, [todolist.id]: res.data.items })
+        })
+      })
+    })
+  }, [])
+
+
+
+/*   useEffect(() => {
+    todolistsApi.getTodolists().then((res) => {
+      const todolists = res.data
+      setTodolists(todolists)
+      todolists.forEach((todolist) => {
+        tasksApi.getTasks(todolist.id).then((res) => {
+          setTasks((prevTasks) => ({
+            ...prevTasks,
+            [todolist.id]: res.data.items
+          }))
+        })
+      })
+    })
+  }, []) */
 
   const createTodolist = (title: string) => {
     todolistsApi.createTodolist(title).then((res) => {
@@ -47,7 +75,14 @@ export const AppHttpRequests = () => {
     })
   }
 
-  const deleteTask = (todolistId: string, taskId: string) => {}
+  const deleteTask = (todolistId: string, taskId: string) => {
+    tasksApi.deleteTask(todolistId, taskId).then(() =>
+      setTasks({
+        ...tasks,
+        [todolistId]: tasks[todolistId].filter((task) => task.id !== taskId),
+      }),
+    )
+  }
 
   const changeTaskStatus = (event: ChangeEvent<HTMLInputElement>, task: Task) => {
     const todolistId = task.todoListId
@@ -68,7 +103,24 @@ export const AppHttpRequests = () => {
     })
   }
 
-  const changeTaskTitle = (task: any, title: string) => {}
+  const changeTaskTitle = (task: any, title: string) => {
+    const todolistId = task.todoListId
+
+    const model: UpdateTaskModel = {
+      title: title,
+      startDate: task.startDate,
+      deadline: task.deadline,
+      description: task.description,
+      priority: task.priority,
+      status: task.status,
+    }
+
+    tasksApi.updateTask(todolistId, task.id, model).then((res) => {
+      const updatedTask = res.data.data.item
+
+      setTasks({ ...tasks, [todolistId]: tasks[todolistId].map((item) => (item.id === task.id ? updatedTask : item)) })
+    })
+  }
 
   return (
     <div style={{ margin: "20px" }}>

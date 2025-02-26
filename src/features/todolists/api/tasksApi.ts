@@ -1,6 +1,6 @@
 import { instance } from "@/common/instance"
-import type { BaseResponse } from "@/common/types"
-import type { GetTasksResponse, Task, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
+import { GetTasksResponse, Task, UpdateTaskModel } from "./tasksApi.types"
+import { BaseResponse } from "@/common/types"
 
 export const tasksApi = {
   getTasks(todolistId: string) {
@@ -9,7 +9,15 @@ export const tasksApi = {
   createTask(todolistId: string, title: string) {
     return instance.post<BaseResponse<{ item: Task }>>(`/todo-lists/${todolistId}/tasks`, { title })
   },
+  deleteTask(todolistId: string, taskId: string) {
+    return instance.delete<BaseResponse<{ item: Task }>>(`/todo-lists/${todolistId}/tasks/${taskId}`)
+  },
+
   updateTask(todolistId: string, taskId: string, model: UpdateTaskModel) {
+    return instance.put<BaseResponse<{ item: Task }>>(`/todo-lists/${todolistId}/tasks/${taskId}`, model)
+  },
+
+  changeTask(todolistId: string, taskId: string, model: UpdateTaskModel) {
     return instance.put<BaseResponse<{ item: Task }>>(`/todo-lists/${todolistId}/tasks/${taskId}`, model)
   },
 }
