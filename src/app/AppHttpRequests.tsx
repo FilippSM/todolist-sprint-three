@@ -22,19 +22,6 @@ export const AppHttpRequests = () => {
       })
     })
   }, [])
-  useEffect(() => {
-    todolistsApi.getTodolists().then((res) => {
-      const todolists = res.data
-      setTodolists(todolists)
-      todolists.forEach((todolist) => {
-        tasksApi.getTasks(todolist.id).then((res) => {
-          setTasks({ ...tasks, [todolist.id]: res.data.items })
-        })
-      })
-    })
-  }, [])
-
-
 
 /*   useEffect(() => {
     todolistsApi.getTodolists().then((res) => {
