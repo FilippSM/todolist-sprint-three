@@ -1,4 +1,4 @@
-import {createSlice } from "@reduxjs/toolkit";
+import {createSlice } from "@reduxjs/toolkit"
 
 //три обязательных параметра
 export const appSlice = createSlice({

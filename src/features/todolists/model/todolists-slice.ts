@@ -4,15 +4,15 @@ import { changeTodolistFilterAC } from '@/features/todolists/model/todolists-red
 import { changeTodolistTitleAC } from './todolists-reducer'; */
 
 /* export const deleteTodolistAC = createAction<{ id: string }>("todolists/deleteTodolist") */
-export const createTodolistAC = createAction("todolists/createTodolist", (title: string) => {
+/* export const _createTodolistAC = createAction("todolists/createTodolist", (title: string) => {
   return { payload: { title, id: nanoid() } }
-})
+}) */
 /* export const changeTodolistTitleAC = createAction<{ id: string; title: string }>("todolists/changeTodolistTitle")
 export const changeTodolistFilterAC = createAction<{ id: string; filter: FilterValues }>(
   "todolists/changeTodolistFilter",
 ) */
 
-const initialState: Todolist[] = []
+/* const initialState: Todolist[] = [] */
 
 export const todolistsSlice = createSlice({
   name: "todolists",
@@ -36,14 +36,23 @@ export const todolistsSlice = createSlice({
         todolist.filter = action.payload.filter
       }
     }),
+    createTodolistAC:create.reducer<{title: string, id: string}>((state, action) => {
+      /* state.push({ ...action.payload, filter: "all" }) */
+      const newTodolist: Todolist = {
+        title: action.payload.title,
+        id: action.payload.id,
+        filter: "all"
+      }
+      state.push(newTodolist)
+    }),
 
   })
 })
 
 export const todolistsReducer = todolistsSlice.reducer
-export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC} = todolistsSlice.actions
+export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC, createTodolistAC} = todolistsSlice.actions
 
-export const _todolistsReducer = createReducer(initialState, (builder) => {
+/* export const _todolistsReducer = createReducer(initialState, (builder) => {
   builder
     .addCase(deleteTodolistAC, (state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
@@ -66,7 +75,7 @@ export const _todolistsReducer = createReducer(initialState, (builder) => {
         todolist.filter = action.payload.filter
       }
     })
-})
+}) */
 
 export type Todolist = {
   id: string
