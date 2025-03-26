@@ -1,4 +1,4 @@
-import {createSlice } from "@reduxjs/toolkit"
+import {createSlice } from "@reduxjs/toolkit";
 
 //три обязательных параметра
 export const appSlice = createSlice({
@@ -18,11 +18,3 @@ export const appReducer = appSlice.reducer
 export const {changeThemeModeAC} = appSlice.actions
 
 export type ThemeMode = "dark" | "light"
-
-/* export const changeThemeModeAC = createAction<{ themeMode: ThemeMode }>("app/changeThemeMode")
-
-export const appReducer = createReducer(initialState, (builder) => {
-  builder.addCase(changeThemeModeAC, (state, action) => {
-    state.themeMode = action.payload.themeMode
-  })
-}) */
