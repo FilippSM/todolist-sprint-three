@@ -1,17 +1,16 @@
-import { useAppDispatch } from "@/common/hooks"
 import { CreateItemForm } from "@/common/components/CreateItemForm/CreateItemForm"
+import { useAppDispatch } from "@/common/hooks"
 import { createTodolistAC } from "@/features/todolists/model/todolists-slice"
 import { Todolists } from "@/features/todolists/ui/Todolists/Todolists"
 import { Container } from "@mui/material"
-import  Grid  from '@mui/material/Grid2';
-import { nanoid } from "@reduxjs/toolkit"
+import Grid from '@mui/material/Grid2'
 
 
 export const Main = () => {
   const dispatch = useAppDispatch()
 
   const createTodolist = (title: string) => {
-    dispatch(createTodolistAC({title, id: nanoid()}))
+    dispatch(createTodolistAC(title))
   }
 
   return (
