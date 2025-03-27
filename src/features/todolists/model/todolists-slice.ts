@@ -1,9 +1,13 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { Todolist } from "../api/todolistsApi.types";
 
 export const todolistsSlice = createSlice({
   name: "todolists",
-  initialState: [] as Todolist[],
+  initialState: [] as DomainTodolist[],
   reducers: (create) => ({
+    setTodolistsAC: create.reducer<{ todolists: Todolist[] }>((_state, action) => {
+      return action.payload.todolists.map(td => ({ ...td, filter: 'all' }))
+    }),
     deleteTodolistAC:create.reducer<{ id: string }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
@@ -45,7 +49,12 @@ export const todolistsSlice = createSlice({
         }
       },
       (state, action) => {
-        state.push({ ...action.payload, filter: "all" })
+        state.push({
+          ...action.payload, 
+          filter: "all",
+          addedDate: "",
+          order: 0
+        })
       }
     ),
 
@@ -53,11 +62,9 @@ export const todolistsSlice = createSlice({
 })
 
 export const todolistsReducer = todolistsSlice.reducer
-export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC, createTodolistAC} = todolistsSlice.actions
+export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC, createTodolistAC, setTodolistsAC} = todolistsSlice.actions
 
-export type Todolist = {
-  id: string
-  title: string
+export type DomainTodolist = Todolist & {
   filter: FilterValues
 }
 

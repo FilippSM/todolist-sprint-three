@@ -1,4 +1,4 @@
-import { createReducer, createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 import { createTodolistAC, deleteTodolistAC } from "./todolists-slice";
 
 export const tasksSlice = createSlice({
