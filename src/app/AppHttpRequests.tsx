@@ -1,15 +1,15 @@
 import { CreateItemForm, EditableSpan } from "@/common/components"
+import { TaskStatus } from "@/common/enums"
+import { tasksApi } from "@/features/todolists/api/tasksApi"
+import type { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types"
-import { type ChangeEvent, type CSSProperties, useEffect, useState } from "react"
 import Checkbox from "@mui/material/Checkbox"
-import { tasksApi } from "@/features/todolists/api/tasksApi"
-import { Task, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
-import { TaskStatus } from "@/common/enums/enums"
+import { type ChangeEvent, type CSSProperties, useEffect, useState } from "react"
 
 export const AppHttpRequests = () => {
   const [todolists, setTodolists] = useState<Todolist[]>([])
-  const [tasks, setTasks] = useState<Record<string, Task[]>>({})
+  const [tasks, setTasks] = useState<Record<string, DomainTask[]>>({})
 
   useEffect(() => {
     todolistsApi.getTodolists().then((res) => {
@@ -17,37 +17,26 @@ export const AppHttpRequests = () => {
       setTodolists(todolists)
       todolists.forEach((todolist) => {
         tasksApi.getTasks(todolist.id).then((res) => {
-          setTasks((prevTasks) => ({
-            ...prevTasks,
-            [todolist.id]: res.data.items
-          }))
+          setTasks((prevTasksState) => ({ ...prevTasksState, [todolist.id]: res.data.items }))
         })
       })
     })
   }, [])
-  /* useEffect(() => {
-    todolistsApi.getTodolists().then((res) => {
-      const todolists = res.data
-      setTodolists(todolists)
-      todolists.forEach((todolist) => {
-        tasksApi.getTasks(todolist.id).then((res) => {
-          setTasks({ ...tasks, [todolist.id]: res.data.items })
-        })
-      })
-    })
-  }, []) */
-
-
 
   const createTodolist = (title: string) => {
     todolistsApi.createTodolist(title).then((res) => {
       const newTodolist = res.data.data.item
       setTodolists([newTodolist, ...todolists])
+      setTasks({ ...tasks, [newTodolist.id]: [] })
     })
   }
 
   const deleteTodolist = (id: string) => {
-    todolistsApi.deleteTodolist(id).then(() => setTodolists(todolists.filter((todolist) => todolist.id !== id)))
+    todolistsApi.deleteTodolist(id).then(() => {
+      setTodolists(todolists.filter((todolist) => todolist.id !== id))
+      delete tasks[id]
+      setTasks({ ...tasks })
+    })
   }
 
   const changeTodolistTitle = (id: string, title: string) => {
@@ -57,43 +46,32 @@ export const AppHttpRequests = () => {
   }
 
   const createTask = (todolistId: string, title: string) => {
-    tasksApi.createTask(todolistId, title).then((res) => {
+    tasksApi.createTask({ todolistId, title }).then((res) => {
       const newTask = res.data.data.item
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [todolistId]: [newTask, ...(prevTasks[todolistId] || [])]
-      }))
+      setTasks({ ...tasks, [todolistId]: [newTask, ...tasks[todolistId]] })
     })
   }
 
   const deleteTask = (todolistId: string, taskId: string) => {
-    tasksApi.deleteTask(todolistId, taskId).then(() =>
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [todolistId]: prevTasks[todolistId].filter((task) => task.id !== taskId),
-      })),
-    )
+    tasksApi.deleteTask({ todolistId, taskId }).then(() => {
+      setTasks({ ...tasks, [todolistId]: tasks[todolistId].filter((task) => task.id !== taskId) })
+    })
   }
 
-  const changeTaskStatus = (event: ChangeEvent<HTMLInputElement>, task: Task) => {
+  const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>, task: DomainTask) => {
     const todolistId = task.todoListId
 
     const model: UpdateTaskModel = {
+      description: task.description,
       title: task.title,
+      priority: task.priority,
       startDate: task.startDate,
       deadline: task.deadline,
-      description: task.description,
-      priority: task.priority,
-      status: event.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New,
+      status: e.target.checked ? TaskStatus.Completed : TaskStatus.New,
     }
 
-    tasksApi.updateTask(todolistId, task.id, model).then((res) => {
-      const updatedTask = res.data.data.item
-
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [todolistId]: prevTasks[todolistId].map((item) => (item.id === task.id ? updatedTask : item))
-      }))
+    tasksApi.updateTask({ todolistId, taskId: task.id, model }).then(() => {
+      setTasks({ ...tasks, [todolistId]: tasks[todolistId].map((t) => (t.id === task.id ? { ...t, ...model } : t)) })
     })
   }
 
@@ -101,24 +79,18 @@ export const AppHttpRequests = () => {
     const todolistId = task.todoListId
 
     const model: UpdateTaskModel = {
-      title: title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
       startDate: task.startDate,
       deadline: task.deadline,
-      description: task.description,
-      priority: task.priority,
-      status: task.status,
+      title,
     }
 
-    tasksApi.updateTask(todolistId, task.id, model).then((res) => {
-      const updatedTask = res.data.data.item
-
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [todolistId]: prevTasks[todolistId].map((item) => (item.id === task.id ? updatedTask : item))
-      }))
+    tasksApi.updateTask({ todolistId, taskId: task.id, model }).then(() => {
+      setTasks({ ...tasks, [todolistId]: tasks[todolistId].map((t) => (t.id === task.id ? { ...t, ...model } : t)) })
     })
   }
-
 
   return (
     <div style={{ margin: "20px" }}>
