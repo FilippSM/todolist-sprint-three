@@ -104,10 +104,10 @@ export const changeTodolistTitleTC = createAsyncThunk(
 
 export const deleteTodolistTC = createAsyncThunk(
   `${todolistsSlice.name}/deleteTodolistTC`,
-  async (arg: {id: string}, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
-      await todolistsApi.deleteTodolist(arg.id)
-      return arg.id
+      await todolistsApi.deleteTodolist(id)
+      return id
     } catch (error) {
       return rejectWithValue(null)
     }
