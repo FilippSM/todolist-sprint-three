@@ -61,11 +61,20 @@ export const todolistsSlice = createSlice({
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         if (action.payload) {
           const index = state.findIndex((todolist) => todolist.id === action.payload)
-          
           if (index !== -1) {
             state.splice(index, 1)
           }
         }
+      })
+      .addCase(createTodolistTC.fulfilled, (state, action) => {
+        const newTodolist: DomainTodolist = {
+          id: action.payload.id, // Используем id из payload
+          title: action.payload.title, // Используем title из payload
+          filter: "all",
+          order: 1,
+          addedDate: "",
+        }
+        state.push(newTodolist) // Добавляем новый тудулист в состояние
       })
   },
   selectors: {
@@ -73,7 +82,7 @@ export const todolistsSlice = createSlice({
   },
 })
 
-export const { changeTodolistFilterAC, createTodolistAC } = todolistsSlice.actions
+export const { changeTodolistFilterAC} = todolistsSlice.actions
 export const { selectTodolists } = todolistsSlice.selectors
 export const todolistsReducer = todolistsSlice.reducer
 
@@ -112,7 +121,21 @@ export const deleteTodolistTC = createAsyncThunk(
       return rejectWithValue(null)
     }
   },
-);
+)
+
+export const createTodolistTC = createAsyncThunk(
+  `${todolistsSlice.name}/createTodolistTC`,
+  async (title: string, { rejectWithValue }) => {
+    try {
+      const id = nanoid(); // Генерация id
+      const newTodolist = { title, id }; // Создаем новый тудулист
+      await todolistsApi.createTodolist(title); // Отправляем на сервер
+      return newTodolist; // Возвращаем новый тудулист
+    } catch (error) {
+      return rejectWithValue(null)
+    }
+  },
+)
 
 export type DomainTodolist = Todolist & {
   filter: FilterValues
