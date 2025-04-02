@@ -22,22 +22,6 @@ export const todolistsSlice = createSlice({
         todolist.filter = action.payload.filter
       }
     }),
-    // ✅
-    // todolists/createTodolistAC
-    createTodolistAC: create.preparedReducer(
-      (title: string) => ({
-        payload: { title, id: nanoid() },
-      }),
-      (state, action) => {
-        const newTodolist: DomainTodolist = {
-          ...action.payload,
-          filter: "all",
-          order: 1,
-          addedDate: "",
-        }
-        state.push(newTodolist)
-      },
-    ),
     // ✅🤔
     // createTodolistAC: create.reducer<{ id: string; title: string }>((state, action) => {
     //   state.push({ id: action.payload.id, title: action.payload.title, filter: "all" })
