@@ -38,7 +38,7 @@ export const tasksSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createTodolistTC.fulfilled, (state, action) => {
-        state[action.payload] = []
+        state[action.payload.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         if (action.payload) { // Проверка на наличие payload
