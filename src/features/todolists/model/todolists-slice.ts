@@ -1,6 +1,6 @@
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice} from "@reduxjs/toolkit"
 
 // []
 // ---
@@ -43,22 +43,13 @@ export const todolistsSlice = createSlice({
         }
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
-        if (action.payload) {
-          const index = state.findIndex((todolist) => todolist.id === action.payload)
+          const index = state.findIndex((todolist) => todolist.id === action.payload.id)
           if (index !== -1) {
             state.splice(index, 1)
           }
-        }
       })
       .addCase(createTodolistTC.fulfilled, (state, action) => {
-        const newTodolist: DomainTodolist = {
-          id: action.payload.id, // Используем id из payload
-          title: action.payload.title, // Используем title из payload
-          filter: "all",
-          order: 1,
-          addedDate: "",
-        }
-        state.push(newTodolist) // Добавляем новый тудулист в состояние
+        state.unshift({ ...action.payload.todolist, filter: "all" }) // Добавляем новый тудулист в состояние
       })
   },
   selectors: {
@@ -97,26 +88,24 @@ export const changeTodolistTitleTC = createAsyncThunk(
 
 export const deleteTodolistTC = createAsyncThunk(
   `${todolistsSlice.name}/deleteTodolistTC`,
-  async (id: string, { rejectWithValue }) => {
+  async (id: string, thunkAPI) => {
     try {
       await todolistsApi.deleteTodolist(id)
-      return id
+      return {id}
     } catch (error) {
-      return rejectWithValue(null)
+      return thunkAPI.rejectWithValue(null)
     }
   },
 )
 
 export const createTodolistTC = createAsyncThunk(
   `${todolistsSlice.name}/createTodolistTC`,
-  async (title: string, { rejectWithValue }) => {
+  async (title: string, thunkAPI) => {
     try {
-      const id = nanoid(); // Генерация id
-      const newTodolist = { title, id }; // Создаем новый тудулист
-      await todolistsApi.createTodolist(title); // Отправляем на сервер
-      return newTodolist; // Возвращаем новый тудулист
+      const res = await todolistsApi.createTodolist(title) // Отправляем на сервер
+      return { todolist: res.data.data.item } // Возвращаем респонс сервера
     } catch (error) {
-      return rejectWithValue(null)
+      return thunkAPI.rejectWithValue(null)
     }
   },
 )
