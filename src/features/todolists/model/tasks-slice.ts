@@ -85,38 +85,28 @@ export const tasksSlice = createAppSlice({
       },
     ),
     changeTaskStatus: create.asyncThunk(
-      async (args: { todolistId: string; taskId: string; status: TaskStatus }, { rejectWithValue, getState }) => {
-        const { todolistId, taskId, status } = args
+      async (task: DomainTask, { rejectWithValue}) => {
 
         try {
-          const state = getState() as RootState
-          const tasks = state.tasks 
-          const tasksForTodolist = tasks[todolistId]
-          const currentTask = tasksForTodolist.find((task) => task.id === taskId)
-           
-
-          if (currentTask) {
+        
             const model: UpdateTaskModel = {
-              status,
-              title: currentTask.title,
-              priority: currentTask.priority,
-              deadline: currentTask.deadline,
-              description: currentTask.description,
-              startDate: currentTask.startDate,
+              status: task.status,
+              title: task.title,
+              priority: task.priority,
+              deadline: task.deadline,
+              description: task.description,
+              startDate: task.startDate,
             }
 
-            await tasksApi.updateTask({ todolistId, taskId, model })
-            return args
-          } else {
-            return rejectWithValue(null)
-          }
+            await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+            return task
         } catch (error) {
           return rejectWithValue(null)
         }
       },
       {
         fulfilled: (state, action) => {
-          const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
+          const task = state[action.payload.todoListId].find((task) => task.id === action.payload.id)
           if (task) {
             task.status = action.payload.status
           }
