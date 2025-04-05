@@ -90,9 +90,10 @@ export const tasksSlice = createAppSlice({
 
         try {
           const state = getState() as RootState
-          const tasks = state.tasks
+          const tasks = state.tasks 
           const tasksForTodolist = tasks[todolistId]
           const currentTask = tasksForTodolist.find((task) => task.id === taskId)
+           
 
           if (currentTask) {
             const model: UpdateTaskModel = {
@@ -104,10 +105,7 @@ export const tasksSlice = createAppSlice({
               startDate: currentTask.startDate,
             }
 
-            console.log("Updating task:", { todolistId, taskId, model })
-            const response = await tasksApi.updateTask({ todolistId, taskId, model })
-            console.log("Response from server:", response)
-
+            await tasksApi.updateTask({ todolistId, taskId, model })
             return args
           } else {
             return rejectWithValue(null)
@@ -121,7 +119,6 @@ export const tasksSlice = createAppSlice({
           const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
           if (task) {
             task.status = action.payload.status
-            console.log('Task status updated:', state);
           }
         },
       },
@@ -130,7 +127,7 @@ export const tasksSlice = createAppSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createTodolistTC.fulfilled, (state, action) => {
-        state[action.payload.id] = []
+        state[action.payload.todolist.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         if (action.payload) {
