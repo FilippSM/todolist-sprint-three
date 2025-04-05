@@ -1,3 +1,4 @@
+import { setStatus } from "@/app/app-slice";
 import { createAppSlice } from "@/common/utils";
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
@@ -19,12 +20,23 @@ export const todolistsSlice = createAppSlice({
       }
     }),
     //asynk actions (thunk)
-  fetchTodolists: create.asyncThunk (async (_arg, thunkAPI) => {
+  fetchTodolists: create.asyncThunk (
+    async (_arg, {dispatch, rejectWithValue}) => {
       try {
+        dispatch(setStatus({status: "loading"}))
+        //задерж
+        // ка на 2 с искусственная
+        await new Promise((resolve) => {
+          setTimeout(resolve, 2000)
+        })
+
+        dispatch(setStatus({status: "succeeded"}))
+
         const res = await todolistsApi.getTodolists()
         return { todolists: res.data }
       } catch (error) {
-        return thunkAPI.rejectWithValue(null)
+        dispatch(setStatus({status: "failed"})) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
+        return rejectWithValue(null)
       }
     }, {
       fulfilled: (state, action) => {

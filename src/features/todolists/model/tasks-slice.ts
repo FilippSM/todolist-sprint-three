@@ -4,6 +4,7 @@ import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
 import { createTodolistTC, deleteTodolistTC } from "./todolists-slice.ts"
+import { setStatus } from "@/app/app-slice.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -39,11 +40,19 @@ export const tasksSlice = createAppSlice({
       },
     ),
     createTask: create.asyncThunk(
-      async (args: CreateTaskArgs, { rejectWithValue }) => {
+      async (args: CreateTaskArgs, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({status: "loading"}))
+          //задержка на 2 с искусственная
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000)
+          })
+
           const res = await tasksApi.createTask(args)
+          dispatch(setStatus({status: "succeeded"}))
           return { task: res.data.data.item }
         } catch (error) {
+          dispatch(setStatus({status: "failed"})) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
           return rejectWithValue(null)
         }
       },
@@ -85,21 +94,19 @@ export const tasksSlice = createAppSlice({
       },
     ),
     changeTaskStatus: create.asyncThunk(
-      async (task: DomainTask, { rejectWithValue}) => {
-
+      async (task: DomainTask, { rejectWithValue }) => {
         try {
-        
-            const model: UpdateTaskModel = {
-              status: task.status,
-              title: task.title,
-              priority: task.priority,
-              deadline: task.deadline,
-              description: task.description,
-              startDate: task.startDate,
-            }
+          const model: UpdateTaskModel = {
+            status: task.status,
+            title: task.title,
+            priority: task.priority,
+            deadline: task.deadline,
+            description: task.description,
+            startDate: task.startDate,
+          }
 
-            await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
-            return task
+          await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          return task
         } catch (error) {
           return rejectWithValue(null)
         }
