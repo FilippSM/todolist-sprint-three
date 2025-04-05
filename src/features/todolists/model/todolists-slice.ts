@@ -26,9 +26,9 @@ export const todolistsSlice = createAppSlice({
         dispatch(setStatus({status: "loading"}))
         //задерж
         // ка на 2 с искусственная
-        await new Promise((resolve) => {
+      /*   await new Promise((resolve) => {
           setTimeout(resolve, 2000)
-        })
+        }) */
 
         dispatch(setStatus({status: "succeeded"}))
 

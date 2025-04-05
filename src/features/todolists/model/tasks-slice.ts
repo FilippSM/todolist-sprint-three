@@ -1,10 +1,8 @@
-import { RootState } from "@/app/store.ts"
-import { TaskStatus } from "@/common/enums/enums.ts"
+import { setStatus } from "@/app/app-slice.ts"
 import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
 import { createTodolistTC, deleteTodolistTC } from "./todolists-slice.ts"
-import { setStatus } from "@/app/app-slice.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -45,15 +43,15 @@ export const tasksSlice = createAppSlice({
           dispatch(setStatus({status: "loading"}))
           //задержка на 2 с искусственная
           await new Promise((resolve) => {
-            setTimeout(resolve, 2000)
+            setTimeout(resolve, 1000)
           })
-
+        /*   const res = await tasksApi.createTask(args) */
           const res = await tasksApi.createTask(args)
-          dispatch(setStatus({status: "succeeded"}))
           return { task: res.data.data.item }
         } catch (error) {
-          dispatch(setStatus({status: "failed"})) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({status: "idle"})) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {
