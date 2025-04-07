@@ -2,7 +2,6 @@ import { setStatus } from "@/app/app-slice"
 import { createAppSlice } from "@/common/utils"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { createAsyncThunk } from "@reduxjs/toolkit"
 
 // []
 // ---
