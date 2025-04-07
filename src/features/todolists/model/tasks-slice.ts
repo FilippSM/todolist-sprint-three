@@ -2,7 +2,7 @@ import { setStatus } from "@/app/app-slice.ts"
 import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
-import { createTodolistTC, deleteTodolistTC } from "./todolists-slice.ts"
+import { createTodolist, deleteTodolist } from "./todolists-slice.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -40,18 +40,18 @@ export const tasksSlice = createAppSlice({
     createTask: create.asyncThunk(
       async (args: CreateTaskArgs, { dispatch, rejectWithValue }) => {
         try {
-          dispatch(setStatus({status: "loading"}))
+          dispatch(setStatus({ status: "loading" }))
           //задержка на 2 с искусственная
           await new Promise((resolve) => {
             setTimeout(resolve, 1000)
           })
-        /*   const res = await tasksApi.createTask(args) */
+          /*   const res = await tasksApi.createTask(args) */
           const res = await tasksApi.createTask(args)
           return { task: res.data.data.item }
         } catch (error) {
           return rejectWithValue(null)
         } finally {
-          dispatch(setStatus({status: "idle"})) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {
@@ -118,13 +118,40 @@ export const tasksSlice = createAppSlice({
         },
       },
     ),
+    changeTaskTitle: create.asyncThunk(
+      async (task: DomainTask, { rejectWithValue }) => {
+        try {
+          const model: UpdateTaskModel = {
+            status: task.status,
+            title: task.title,
+            priority: task.priority,
+            deadline: task.deadline,
+            description: task.description,
+            startDate: task.startDate,
+          }
+
+          await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          return task
+        } catch (error) {
+          return rejectWithValue(null)
+        }
+      },
+      {
+        fulfilled: (state, action) => {
+          const task = state[action.payload.todoListId].find((task) => task.id === action.payload.id)
+          if (task) {
+            task.title = action.payload.title
+          }
+        },
+      },
+    ),
   }),
   extraReducers: (builder) => {
     builder
-      .addCase(createTodolistTC.fulfilled, (state, action) => {
+      .addCase(createTodolist.fulfilled, (state, action) => {
         state[action.payload.todolist.id] = []
       })
-      .addCase(deleteTodolistTC.fulfilled, (state, action) => {
+      .addCase(deleteTodolist.fulfilled, (state, action) => {
         if (action.payload) {
           // Проверка на наличие payload
           delete state[action.payload.id] // Удаляем по id
@@ -136,7 +163,7 @@ export const tasksSlice = createAppSlice({
   },
 })
 
-export const { changeTaskTitleAC, fetchTasks, createTask, deleteTask, changeTaskStatus } = tasksSlice.actions
+export const { changeTaskTitle, fetchTasks, createTask, deleteTask, changeTaskStatus } = tasksSlice.actions
 export const { selectTasks } = tasksSlice.selectors
 export const tasksReducer = tasksSlice.reducer
 
