@@ -1,4 +1,4 @@
-import { setStatus } from "@/app/app-slice.ts"
+import { setAppErrorAC, setStatus } from "@/app/app-slice.ts"
 import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
@@ -39,12 +39,17 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setStatus({ status: "loading" }))
           //задержка на 2 с искусственная
-          await new Promise((resolve) => {
+          /* await new Promise((resolve) => {
             setTimeout(resolve, 1000)
-          })
+          }) */
           /*   const res = await tasksApi.createTask(args) */
           const res = await tasksApi.createTask(args)
-          return { task: res.data.data.item }
+          if (res.data.resultCode === 0) {
+            return { task: res.data.data.item }
+          } else {
+            dispatch(setAppErrorAC({error: res.data.messages[0]}))
+            return rejectWithValue(null)
+          }
         } catch (error) {
           return rejectWithValue(null)
         } finally {
