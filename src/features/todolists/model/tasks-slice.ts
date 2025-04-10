@@ -14,21 +14,18 @@ export const tasksSlice = createAppSlice({
   name: "tasks",
   initialState: {} as TasksState,
   reducers: (create) => ({
-    //actions
-    changeTaskTitleAC: create.reducer<{ todolistId: string; taskId: string; title: string }>((state, action) => {
-      const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
-      if (task) {
-        task.title = action.payload.title
-      }
-    }),
     //thunk
     fetchTasks: create.asyncThunk(
-      async (todolistId: string, { rejectWithValue }) => {
+      async (todolistId: string, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
+
           const res = await tasksApi.getTasks(todolistId)
           return { tasks: res.data.items, todolistId }
         } catch (error) {
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {
@@ -73,12 +70,15 @@ export const tasksSlice = createAppSlice({
       },
     ),
     deleteTask: create.asyncThunk(
-      async (args: DeleteTaskArgs, { rejectWithValue }) => {
+      async (args: DeleteTaskArgs, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
           await tasksApi.deleteTask(args)
           return args
         } catch (error) {
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) 
         }
       },
       {
@@ -92,8 +92,10 @@ export const tasksSlice = createAppSlice({
       },
     ),
     changeTaskStatus: create.asyncThunk(
-      async (task: DomainTask, { rejectWithValue }) => {
+      async (task: DomainTask, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
+
           const model: UpdateTaskModel = {
             status: task.status,
             title: task.title,
@@ -107,6 +109,8 @@ export const tasksSlice = createAppSlice({
           return task
         } catch (error) {
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {
@@ -119,8 +123,10 @@ export const tasksSlice = createAppSlice({
       },
     ),
     changeTaskTitle: create.asyncThunk(
-      async (task: DomainTask, { rejectWithValue }) => {
+      async (task: DomainTask, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
+
           const model: UpdateTaskModel = {
             status: task.status,
             title: task.title,
@@ -134,6 +140,8 @@ export const tasksSlice = createAppSlice({
           return task
         } catch (error) {
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {

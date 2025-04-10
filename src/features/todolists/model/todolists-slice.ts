@@ -47,12 +47,15 @@ export const todolistsSlice = createAppSlice({
       },
     ),
     changeTodolistTitle: create.asyncThunk(
-      async (args: { id: string; title: string }, { rejectWithValue }) => {
+      async (args: { id: string; title: string }, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
           await todolistsApi.changeTodolistTitle(args)
           return args
         } catch (error) {
           return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
         }
       },
       {
@@ -65,12 +68,15 @@ export const todolistsSlice = createAppSlice({
       },
     ),
     createTodolist: create.asyncThunk(
-      async (title: string, thunkAPI) => {
+      async (title: string, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
           const res = await todolistsApi.createTodolist(title) // Отправляем на сервер
           return { todolist: res.data.data.item } // Возвращаем респонс сервера
         } catch (error) {
-          return thunkAPI.rejectWithValue(null)
+          return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" }))
         }
       },
       {
@@ -80,12 +86,15 @@ export const todolistsSlice = createAppSlice({
       },
     ),
     deleteTodolist: create.asyncThunk(
-      async (id: string, thunkAPI) => {
+      async (id: string, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setStatus({ status: "loading" }))
           await todolistsApi.deleteTodolist(id)
           return { id }
         } catch (error) {
-          return thunkAPI.rejectWithValue(null)
+          return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" }))
         }
       },
       {
@@ -95,14 +104,16 @@ export const todolistsSlice = createAppSlice({
             state.splice(index, 1)
           }
         },
-      }),
+      },
+    ),
   }),
   selectors: {
     selectTodolists: (state) => state,
   },
 })
 
-export const { changeTodolistFilterAC, fetchTodolists, changeTodolistTitle, createTodolist, deleteTodolist } = todolistsSlice.actions
+export const { changeTodolistFilterAC, fetchTodolists, changeTodolistTitle, createTodolist, deleteTodolist } =
+  todolistsSlice.actions
 export const { selectTodolists } = todolistsSlice.selectors
 export const todolistsReducer = todolistsSlice.reducer
 
