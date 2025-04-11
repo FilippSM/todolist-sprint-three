@@ -1,6 +1,7 @@
-import { setStatus } from "@/app/app-slice"
+import { setAppErrorAC, setStatus } from "@/app/app-slice"
+import { ResultCode } from "@/common/enums"
 import { RequestStatus } from "@/common/types"
-import { createAppSlice } from "@/common/utils"
+import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import type { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 
@@ -49,7 +50,7 @@ export const todolistsSlice = createAppSlice({
       {
         fulfilled: (state, action) => {
           action.payload?.todolists.forEach((tl) => {
-            state.push({ ...tl, filter: "all", entityStatus: 'idle' })
+            state.push({ ...tl, filter: "all", entityStatus: "idle" })
           })
         },
       },
@@ -80,8 +81,14 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(setStatus({ status: "loading" }))
           const res = await todolistsApi.createTodolist(title) // Отправляем на сервер
-          return { todolist: res.data.data.item } // Возвращаем респонс сервера
+          if (res.data.resultCode === ResultCode.Success) {
+            return { todolist: res.data.data.item } // Возвращаем респонс сервера
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" }))
@@ -89,7 +96,7 @@ export const todolistsSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          state.unshift({ ...action.payload.todolist, filter: "all", entityStatus: 'idle' }) // Добавляем новый тудулист в состояние
+          state.unshift({ ...action.payload.todolist, filter: "all", entityStatus: "idle" }) // Добавляем новый тудулист в состояние
         },
       },
     ),
@@ -122,8 +129,14 @@ export const todolistsSlice = createAppSlice({
   },
 })
 
-export const { changeTodolistFilterAC, changeTodolistEntityStatusAC, fetchTodolists, changeTodolistTitle, createTodolist, deleteTodolist } =
-  todolistsSlice.actions
+export const {
+  changeTodolistFilterAC,
+  changeTodolistEntityStatusAC,
+  fetchTodolists,
+  changeTodolistTitle,
+  createTodolist,
+  deleteTodolist,
+} = todolistsSlice.actions
 export const { selectTodolists } = todolistsSlice.selectors
 export const todolistsReducer = todolistsSlice.reducer
 

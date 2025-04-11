@@ -3,6 +3,9 @@ import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
 import { createTodolist, deleteTodolist } from "./todolists-slice.ts"
+import { ResultCode } from "@/common/enums/enums.ts"
+import { handleServerNetworkError } from "@/common/utils/handleServerNetworkError.ts"
+import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -44,13 +47,14 @@ export const tasksSlice = createAppSlice({
           }) */
           /*   const res = await tasksApi.createTask(args) */
           const res = await tasksApi.createTask(args)
-          if (res.data.resultCode === 0) {
+          if (res.data.resultCode === ResultCode.Success) {
             return { task: res.data.data.item }
           } else {
-            dispatch(setAppErrorAC({error: res.data.messages[0]}))
+            handleServerAppError(dispatch, res.data)
             return rejectWithValue(null)
           }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
