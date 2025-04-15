@@ -116,6 +116,10 @@ export const tasksSlice = createAppSlice({
 
           await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
           return task
+
+          //через response
+      /*     const res = await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          return { task: res.data.data.item } */
         } catch (error) {
           return rejectWithValue(null)
         } finally {
@@ -128,6 +132,11 @@ export const tasksSlice = createAppSlice({
           if (task) {
             task.status = action.payload.status
           }
+          //response
+         /*  const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
+          if (task) {
+            task.status = action.payload.task.status
+          } */
         },
       },
     ),
