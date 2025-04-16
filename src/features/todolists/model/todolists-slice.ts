@@ -59,9 +59,16 @@ export const todolistsSlice = createAppSlice({
       async (args: { id: string; title: string }, { dispatch, rejectWithValue }) => {
         try {
           dispatch(setStatus({ status: "loading" }))
-          await todolistsApi.changeTodolistTitle(args)
-          return args
+          const res = await todolistsApi.changeTodolistTitle(args)
+
+          if (res.data.resultCode === ResultCode.Success) {
+            return args
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
@@ -105,9 +112,16 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(setStatus({ status: "loading" }))
           dispatch(changeTodolistEntityStatusAC({ entityStatus: "loading", id }))
-          await todolistsApi.deleteTodolist(id)
-          return { id }
+          const res = await todolistsApi.deleteTodolist(id)
+
+          if (res.data.resultCode === ResultCode.Success) {
+            return { id }
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           dispatch(changeTodolistEntityStatusAC({ entityStatus: "failed", id })) //в кэтче обработка если при удалении ошибка - id неправильный
           return rejectWithValue(null)
         } finally {

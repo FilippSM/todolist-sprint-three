@@ -2,7 +2,7 @@ import { setAppErrorAC, setStatus } from "@/app/app-slice.ts"
 import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
-import { createTodolist, deleteTodolist } from "./todolists-slice.ts"
+import { changeTodolistEntityStatusAC, createTodolist, deleteTodolist } from "./todolists-slice.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
 import { handleServerNetworkError } from "@/common/utils/handleServerNetworkError.ts"
 import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
@@ -82,12 +82,18 @@ export const tasksSlice = createAppSlice({
       async (args: DeleteTaskArgs, { dispatch, rejectWithValue }) => {
         try {
           dispatch(setStatus({ status: "loading" }))
-          await tasksApi.deleteTask(args)
-          return args
+          const res = await tasksApi.deleteTask(args)
+          if (res.data.resultCode === ResultCode.Success) {
+            return args
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
-          dispatch(setStatus({ status: "idle" })) 
+          dispatch(setStatus({ status: "idle" }))
         }
       },
       {
@@ -114,13 +120,15 @@ export const tasksSlice = createAppSlice({
             startDate: task.startDate,
           }
 
-          await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
-          return task
-
-          //через response
-      /*     const res = await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
-          return { task: res.data.data.item } */
+          const res = await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          if (res.data.resultCode === ResultCode.Success) {
+            return { task: res.data.data.item }
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
@@ -128,15 +136,10 @@ export const tasksSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          const task = state[action.payload.todoListId].find((task) => task.id === action.payload.id)
-          if (task) {
-            task.status = action.payload.status
-          }
-          //response
-         /*  const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
+          const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
           if (task) {
             task.status = action.payload.task.status
-          } */
+          }
         },
       },
     ),
@@ -153,10 +156,15 @@ export const tasksSlice = createAppSlice({
             description: task.description,
             startDate: task.startDate,
           }
-
-          await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
-          return task
+          const res = await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          if (res.data.resultCode === ResultCode.Success) {
+            return { task: res.data.data.item }
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
@@ -164,9 +172,9 @@ export const tasksSlice = createAppSlice({
       },
       {
         fulfilled: (state, action) => {
-          const task = state[action.payload.todoListId].find((task) => task.id === action.payload.id)
+          const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
           if (task) {
-            task.title = action.payload.title
+            task.title = action.payload.task.title
           }
         },
       },
@@ -194,3 +202,9 @@ export const { selectTasks } = tasksSlice.selectors
 export const tasksReducer = tasksSlice.reducer
 
 export type TasksState = Record<string, DomainTask[]>
+
+/* export type TasksState = Record<string, {
+  tasks: DomainTask[];
+  entityStatus: RequestStatus;
+}>;
+ */

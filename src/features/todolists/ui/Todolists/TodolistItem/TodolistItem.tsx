@@ -13,6 +13,8 @@ type Props = {
 export const TodolistItem = ({ todolist }: Props) => {
   const dispatch = useAppDispatch()
 
+  /* console.log(todolist.entityStatus === "loading") */
+
   const createTaskHandler = (title: string) => {
     const action = createTask({ todolistId: todolist.id, title })
     dispatch(action)
