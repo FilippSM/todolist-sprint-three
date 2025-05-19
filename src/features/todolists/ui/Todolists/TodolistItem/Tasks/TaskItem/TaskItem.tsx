@@ -51,6 +51,7 @@ export const TaskItem = ({ task, todolistId, todolist }: Props) => {
           disabled={todolist.entityStatus === "loading"}
         />
       </div>
+      <span>{new Date(task.addedDate).toLocaleDateString()}</span>
       <IconButton onClick={deleteTaskHandler} disabled={todolist.entityStatus === "loading"}>
         <DeleteIcon />
       </IconButton>

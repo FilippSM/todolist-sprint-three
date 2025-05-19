@@ -1,11 +1,11 @@
-import { setAppErrorAC, setStatus } from "@/app/app-slice.ts"
-import { createAppSlice } from "@/common/utils/createAppSlice.ts"
-import { tasksApi } from "../api/tasksApi.ts"
-import { CreateTaskArgs, DeleteTaskArgs, DomainTask, UpdateTaskModel } from "../api/tasksApi.types.ts"
-import { changeTodolistEntityStatusAC, createTodolist, deleteTodolist } from "./todolists-slice.ts"
+import { setStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
-import { handleServerNetworkError } from "@/common/utils/handleServerNetworkError.ts"
+import { createAppSlice } from "@/common/utils/createAppSlice.ts"
 import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
+import { handleServerNetworkError } from "@/common/utils/handleServerNetworkError.ts"
+import { tasksApi } from "../api/tasksApi.ts"
+import { CreateTaskArgs, DeleteTaskArgs, DomainTask, domainTaskSchema, UpdateTaskModel } from "../api/tasksApi.types.ts"
+import { createTodolist, deleteTodolist } from "./todolists-slice.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -22,10 +22,14 @@ export const tasksSlice = createAppSlice({
       async (todolistId: string, { dispatch, rejectWithValue }) => {
         try {
           dispatch(setStatus({ status: "loading" }))
-
           const res = await tasksApi.getTasks(todolistId)
+    
+          //ZOD validation
+          domainTaskSchema.array().parse(res.data.items)  
+          dispatch(setStatus({ status: "succeeded" }))
           return { tasks: res.data.items, todolistId }
         } catch (error) {
+          handleServerNetworkError(dispatch, error)
           return rejectWithValue(null)
         } finally {
           dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
