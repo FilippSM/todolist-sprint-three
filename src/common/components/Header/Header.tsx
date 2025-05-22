@@ -11,10 +11,13 @@ import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
 import LinearProgress from "@mui/material/LinearProgress"
+import { logoutTC, selectIsLoggedIn } from "@/features/auth/model/auth-slice"
+
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const status = useAppSelector(selectStatus)
+  const isLoggetIn = useAppSelector(selectIsLoggedIn)
 
 
   const dispatch = useAppDispatch()
@@ -25,6 +28,10 @@ export const Header = () => {
     dispatch(changeThemeModeAC({ themeMode: themeMode === "light" ? "dark" : "light" }))
   }
 
+  const logoutHandler = () => {
+    dispatch(logoutTC())
+  }
+
   return (
     <AppBar position="static" sx={{ mb: "30px" }}>
       <Toolbar>
@@ -33,8 +40,7 @@ export const Header = () => {
             <MenuIcon />
           </IconButton>
           <div>
-            <NavButton>Sign in</NavButton>
-            <NavButton>Sign up</NavButton>
+            {isLoggetIn && <NavButton onClick={logoutHandler}>Logout</NavButton>}
             <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
             <Switch color={"default"} onChange={changeMode} />
           </div>

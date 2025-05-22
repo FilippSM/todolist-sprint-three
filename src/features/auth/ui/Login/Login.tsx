@@ -5,6 +5,7 @@ import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
 import FormControl from "@mui/material/FormControl"
 
+import { Path } from "@/common/routing/Routing"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormControlLabel } from "@mui/material"
 import FormGroup from "@mui/material/FormGroup"
@@ -12,17 +13,20 @@ import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import s from "./Login.module.css"
+import { Navigate, useNavigate } from "react-router"
 import { LoginInputs, loginSchema } from "../../lib/schemas"
-import { loginTC } from "../../model/auth-slice"
+import { loginTC, selectIsLoggedIn } from "../../model/auth-slice"
+import s from "./Login.module.css"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
-  console.log("Login Render")
+  const isLoggetIn = useAppSelector(selectIsLoggedIn)
 
   const theme = getTheme(themeMode)
 
   const dispatch = useAppDispatch()
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -36,6 +40,19 @@ export const Login = () => {
     dispatch(loginTC(data)) 
  /*    reset() */
   }
+
+  // 1 var
+  if (isLoggetIn) {
+    return <Navigate to={Path.Main} />
+  }
+
+// 2 var
+/* useEffect(() => {
+    if (isLoggetIn) {
+    navigate(Path.Main)
+  }
+}, [isLoggetIn]) */
+
 
   return (
     <Grid container justifyContent={"center"}>
