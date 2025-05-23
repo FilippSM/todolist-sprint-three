@@ -70,9 +70,34 @@ export const authSlice = createAppSlice({
         },
       },
     ),
+    meTC: create.asyncThunk(
+      async (_, { dispatch, rejectWithValue }) => {
+        try {
+          dispatch(setStatus({ status: "loading" }))
+          const res = await authApi.me()
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setStatus({ status: "succeeded" }))
+            return { isLoggedIn: true }
+          } else {
+            handleServerAppError(dispatch, res.data)
+            return rejectWithValue(null)
+          }
+        } catch (error) {
+          handleServerNetworkError(dispatch, error)
+          return rejectWithValue(null)
+        } finally {
+          dispatch(setStatus({ status: "idle" })) //крутилка при ошибке сервера - если ошибка крутилка вырубается а не крутится вечно
+        }
+      },
+      {
+        fulfilled: (state, action) => {
+          state.isLoggedIn = action.payload.isLoggedIn
+        },
+      },
+    ),
   }),
 })
 
 export const { selectIsLoggedIn } = authSlice.selectors
-export const { loginTC, logoutTC } = authSlice.actions
+export const { loginTC, logoutTC, meTC } = authSlice.actions
 export const authReducer = authSlice.reducer

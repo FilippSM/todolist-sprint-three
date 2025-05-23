@@ -20,7 +20,6 @@ import s from "./Login.module.css"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
-  const isLoggetIn = useAppSelector(selectIsLoggedIn)
 
   const theme = getTheme(themeMode)
 
@@ -42,10 +41,10 @@ export const Login = () => {
   }
 
   // 1 var
-  if (isLoggetIn) {
+  /* if (isLoggetIn) {
     return <Navigate to={Path.Main} />
   }
-
+ */
 // 2 var
 /* useEffect(() => {
     if (isLoggetIn) {
