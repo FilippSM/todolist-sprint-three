@@ -1,4 +1,5 @@
 import { setAppErrorAC, setStatus } from "@/app/app-slice"
+import { clearDataAC } from "@/common/actions"
 import { ResultCode } from "@/common/enums"
 import { RequestStatus } from "@/common/types"
 import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
@@ -140,6 +141,11 @@ export const todolistsSlice = createAppSlice({
   }),
   selectors: {
     selectTodolists: (state) => state,
+  },
+  extraReducers: (builder) => {
+    builder.addCase(clearDataAC, () => {
+      return []
+    })
   },
 })
 

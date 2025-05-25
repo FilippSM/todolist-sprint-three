@@ -6,6 +6,7 @@ import { handleServerNetworkError } from "@/common/utils/handleServerNetworkErro
 import { tasksApi } from "../api/tasksApi.ts"
 import { CreateTaskArgs, DeleteTaskArgs, DomainTask, domainTaskSchema, UpdateTaskModel } from "../api/tasksApi.types.ts"
 import { createTodolist, deleteTodolist } from "./todolists-slice.ts"
+import { clearDataAC } from "@/common/actions/actions.ts"
 
 // {
 //   "todoId1": [{taskId: '1', title: 'a'}],
@@ -194,6 +195,9 @@ export const tasksSlice = createAppSlice({
           // Проверка на наличие payload
           delete state[action.payload.id] // Удаляем по id
         }
+      })
+      .addCase(clearDataAC, () => {
+        return {}
       })
   },
   selectors: {
