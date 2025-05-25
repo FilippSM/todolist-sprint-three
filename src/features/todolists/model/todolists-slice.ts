@@ -1,4 +1,4 @@
-import { setAppErrorAC, setStatus } from "@/app/app-slice"
+import { setStatus } from "@/app/app-slice"
 import { clearDataAC } from "@/common/actions"
 import { ResultCode } from "@/common/enums"
 import { RequestStatus } from "@/common/types"
