@@ -16,11 +16,14 @@ import { useNavigate } from "react-router"
 import { LoginInputs, loginSchema } from "../../lib/schemas"
 import { loginTC } from "../../model/auth-slice"
 import s from "./Login.module.css"
+import { useLoginMutation } from "../../api/authApi"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
 
   const theme = getTheme(themeMode)
+
+  const [login] = useLoginMutation()
 
   const dispatch = useAppDispatch()
 
@@ -35,8 +38,10 @@ export const Login = () => {
   } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false }, resolver: zodResolver(loginSchema) }) //значение по умолчанию
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    dispatch(loginTC(data)) 
- /*    reset() */
+    login(data).then(() => {
+      
+    })
+    reset()
   }
 
   // 1 var
