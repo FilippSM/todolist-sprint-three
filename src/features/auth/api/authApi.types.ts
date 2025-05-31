@@ -1,5 +1,5 @@
-export type MeResponse = {
-  id: number
-  email: string
-  login: string
+import { LoginInputs } from "../lib/schemas"
+
+export type LoginArgs = LoginInputs & {
+  captcha?: string
 }

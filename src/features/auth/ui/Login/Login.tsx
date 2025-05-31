@@ -1,10 +1,12 @@
-import { selectThemeMode } from "@/app/app-slice"
+import { selectThemeMode, setIsloggedAC } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
 import FormControl from "@mui/material/FormControl"
 
+import { AUTH_TOKEN } from "@/common/constants"
+import { ResultCode } from "@/common/enums"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormControlLabel } from "@mui/material"
 import FormGroup from "@mui/material/FormGroup"
@@ -12,11 +14,9 @@ import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import { useNavigate } from "react-router"
-import { LoginInputs, loginSchema } from "../../lib/schemas"
-import { loginTC } from "../../model/auth-slice"
-import s from "./Login.module.css"
 import { useLoginMutation } from "../../api/authApi"
+import { LoginInputs, loginSchema } from "../../lib/schemas"
+import s from "./Login.module.css"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -27,19 +27,24 @@ export const Login = () => {
 
   const dispatch = useAppDispatch()
 
-  const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
     reset, //ресет полей
     control,
     formState: { errors },
-  } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false }, resolver: zodResolver(loginSchema) }) //значение по умолчанию
+  } = useForm<LoginInputs>({
+    defaultValues: { email: "", password: "", rememberMe: false },
+    resolver: zodResolver(loginSchema),
+  }) //значение по умолчанию
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    login(data).then(() => {
-      
+    login(data).then((res) => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        //local storage
+        localStorage.setItem(AUTH_TOKEN, res.data.data.token)
+        dispatch(setIsloggedAC({isLoggedIn: true}))
+      }
     })
     reset()
   }
@@ -49,13 +54,12 @@ export const Login = () => {
     return <Navigate to={Path.Main} />
   }
  */
-// 2 var
-/* useEffect(() => {
+  // 2 var
+  /* useEffect(() => {
     if (isLoggetIn) {
     navigate(Path.Main)
   }
 }, [isLoggetIn]) */
-
 
   return (
     <Grid container justifyContent={"center"}>

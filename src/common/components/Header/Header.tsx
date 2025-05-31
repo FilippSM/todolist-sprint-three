@@ -1,26 +1,29 @@
-import { changeThemeModeAC, selectIsLoggedIn, selectStatus, selectThemeMode } from "@/app/app-slice.ts"
+import { changeThemeModeAC, selectIsLoggedIn, selectStatus, selectThemeMode, setIsloggedAC } from "@/app/app-slice.ts"
 
+import { clearDataAC } from "@/common/actions"
+import { NavButton } from "@/common/components/NavButton/NavButton"
+import { AUTH_TOKEN } from "@/common/constants"
+import { ResultCode } from "@/common/enums"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { containerSx } from "@/common/styles"
 import { getTheme } from "@/common/theme"
-import { NavButton } from "@/common/components/NavButton/NavButton"
+import { useLogoutMutation } from "@/features/auth/api/authApi"
 import MenuIcon from "@mui/icons-material/Menu"
 import AppBar from "@mui/material/AppBar"
 import Container from "@mui/material/Container"
 import IconButton from "@mui/material/IconButton"
+import LinearProgress from "@mui/material/LinearProgress"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
-import LinearProgress from "@mui/material/LinearProgress"
-import { logoutTC} from "@/features/auth/model/auth-slice"
-
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const status = useAppSelector(selectStatus)
   const isLoggetIn = useAppSelector(selectIsLoggedIn)
 
-
   const dispatch = useAppDispatch()
+
+  const [logout] = useLogoutMutation()
 
   const theme = getTheme(themeMode)
 
@@ -29,7 +32,14 @@ export const Header = () => {
   }
 
   const logoutHandler = () => {
-    dispatch(logoutTC())
+    logout().then((res) => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        dispatch(clearDataAC()) //nаски и тудулисты, которые должны зачищаться
+        //local storage
+        localStorage.removeItem(AUTH_TOKEN)
+        dispatch(setIsloggedAC({isLoggedIn: true}))
+      }
+    })
   }
 
   return (
