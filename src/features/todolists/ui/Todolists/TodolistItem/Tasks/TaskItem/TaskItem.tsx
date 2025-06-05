@@ -18,7 +18,7 @@ type Props = {
 
 export const TaskItem = ({ task, todolistId, todolist }: Props) => {
   const [updateTask] = useUpdateTaskMutation()
-
+  
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
     const status = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
 

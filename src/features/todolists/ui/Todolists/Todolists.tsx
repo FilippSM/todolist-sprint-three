@@ -7,7 +7,7 @@ import { DomainTodolist } from "../../model/todolists-slice";
 export const Todolists = () => {
   const {data: todolists} = useGetTodolistsQuery()
 
-  
+
   return (
     <>
       {todolists?.map((todolist: DomainTodolist) => (

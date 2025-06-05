@@ -1,5 +1,5 @@
 import { RequestStatus } from "@/common/types"
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, isFulfilled, isPending, isRejected } from "@reduxjs/toolkit"
 
 export const appSlice = createSlice({
   name: "app",
@@ -28,6 +28,27 @@ export const appSlice = createSlice({
     selectStatus: (state) => state.status,
     selectError: (state) => state.error,
     selectIsLoggedIn: (state) => state.isLoggedIn,
+  },
+  extraReducers: (builder) => {
+    builder
+    .addMatcher(
+      isPending,
+      (state) => {
+        state.status = "loading"
+      },
+    )
+    .addMatcher(
+      isFulfilled,
+      (state) => {
+        state.status = "succeeded"
+      },
+    )
+    .addMatcher(
+      isRejected,
+      (state) => {
+        state.status = "failed"
+      },
+    )
   },
 })
 

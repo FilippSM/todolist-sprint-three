@@ -1,4 +1,5 @@
 import { changeThemeModeAC, selectIsLoggedIn, selectStatus, selectThemeMode, setIsloggedAC } from "@/app/app-slice.ts"
+import { baseApi } from "@/app/baseApi"
 
 import { clearDataAC } from "@/common/actions"
 import { NavButton } from "@/common/components/NavButton/NavButton"
@@ -32,14 +33,18 @@ export const Header = () => {
   }
 
   const logoutHandler = () => {
-    logout().then((res) => {
-      if (res.data?.resultCode === ResultCode.Success) {
-        dispatch(clearDataAC()) //nаски и тудулисты, которые должны зачищаться
-        //local storage
-        localStorage.removeItem(AUTH_TOKEN)
-        dispatch(setIsloggedAC({isLoggedIn: true}))
-      }
-    })
+    logout()
+      .then((res) => {
+        if (res.data?.resultCode === ResultCode.Success) {
+          //nаски и тудулисты, которые должны зачищаться
+          dispatch(setIsloggedAC({ isLoggedIn: false }))
+          //local storage
+          localStorage.removeItem(AUTH_TOKEN)
+        }
+      })
+      .then(() => {
+        dispatch(baseApi.util.invalidateTags(["Todolist", "Task"]))
+      })
   }
 
   return (
