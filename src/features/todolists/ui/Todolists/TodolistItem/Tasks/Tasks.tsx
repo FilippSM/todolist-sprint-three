@@ -13,7 +13,7 @@ type Props = {
 export const Tasks = ({ todolist }: Props) => {
   const { id, filter } = todolist
 
-  const { data, isLoading, isError, error } = useGetTasksQuery(id)
+  const { data, isLoading} = useGetTasksQuery(id)
 
   let filteredTasks = data?.items
 
