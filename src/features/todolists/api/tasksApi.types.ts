@@ -1,4 +1,5 @@
 import { TaskPriority, TaskStatus } from "@/common/enums/enums"
+import { baseResponseSchema } from "@/common/types"
 import { z } from "zod"
 
 /* export type DomainTask = {
@@ -30,11 +31,28 @@ export const domainTaskSchema = z.object({
  
 export type DomainTask = z.infer<typeof domainTaskSchema>
 
-export type GetTasksResponse = {
+/* export type GetTasksResponse = {
   error: string | null
   totalCount: number
   items: DomainTask[]
-}
+} */
+
+export const getTasksSchema = z.object({
+  error: z.string().nullable(),
+  totalCount: z.number().int().nonnegative(),
+  items: domainTaskSchema.array(),
+})
+ 
+export type GetTasksResponse = z.infer<typeof getTasksSchema>
+
+//create and update task
+export const taskOperationResponseSchema = baseResponseSchema(
+  z.object({
+    item: domainTaskSchema,
+  }),
+)
+export type TaskOperationResponse = z.infer<typeof taskOperationResponseSchema>
+
 
 export type UpdateTaskModel = {
   description: string | null

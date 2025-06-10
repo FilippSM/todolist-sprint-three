@@ -1,7 +1,17 @@
 import { instance } from "@/common/instance"
-import type { BaseResponse } from "@/common/types"
-import type { CreateTaskArgs, DeleteTaskArgs, DomainTask, GetTasksResponse, UpdateTaskModel } from "./tasksApi.types"
+import { defaultResponseSchema, type BaseResponse, type DefaultResponse } from "@/common/types"
+import {
+  getTasksSchema,
+  TaskOperationResponse,
+  taskOperationResponseSchema,
+  type CreateTaskArgs,
+  type DeleteTaskArgs,
+  type DomainTask,
+  type GetTasksResponse,
+  type UpdateTaskModel,
+} from "./tasksApi.types"
 import { baseApi } from "@/app/baseApi"
+import { z } from "zod"
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -10,17 +20,34 @@ export const tasksApi = baseApi.injectEndpoints({
       query: (todolistId) => ({
         url: `/todo-lists/${todolistId}/tasks`,
       }),
+      extraOptions: {dataSchema: getTasksSchema}
+      //вариант - ошибка вывод в консоль
+      /*  transformResponse: (res: GetTasksResponse) => getTasksSchema.parse(res) */
+      //вариат через alert
+      /* transformResponse: (res: GetTasksResponse) => {
+        try {
+          getTasksSchema.parse(res)
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            console.table(error.issues)
+            alert("! Zod error. Смотри консоль.")
+          }
+        }
+        return res
+      }, */
+
     }),
-    createTask: build.mutation<BaseResponse<{ item: DomainTask }>, CreateTaskArgs>({
+    createTask: build.mutation<TaskOperationResponse, CreateTaskArgs>({
       invalidatesTags: ["Task"],
       query: ({ todolistId, title }) => ({
         url: `/todo-lists/${todolistId}/tasks`,
         method: "POST",
         body: { title },
       }),
+      extraOptions: {dataSchema: taskOperationResponseSchema}
     }),
     updateTask: build.mutation<
-      BaseResponse<{ item: DomainTask }>,
+      TaskOperationResponse,
       {
         todolistId: string
         taskId: string
@@ -35,32 +62,16 @@ export const tasksApi = baseApi.injectEndpoints({
       }),
     }),
 
-    deleteTask: build.mutation<BaseResponse, DeleteTaskArgs>({
+    deleteTask: build.mutation<DefaultResponse, DeleteTaskArgs>({
       invalidatesTags: ["Task"],
       query: ({ todolistId, taskId }) => ({
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
         method: "DELETE",
       }),
+      extraOptions: {dataSchema: defaultResponseSchema}
     }),
   }),
 })
 
-export const _tasksApi = {
-  getTasks(todolistId: string) {
-    return instance.get<GetTasksResponse>(`/todo-lists/${todolistId}/tasks`)
-  },
-  createTask(payload: CreateTaskArgs) {
-    const { todolistId, title } = payload
-    return instance.post<BaseResponse<{ item: DomainTask }>>(`/todo-lists/${todolistId}/tasks`, { title })
-  },
-  updateTask(payload: { todolistId: string; taskId: string; model: UpdateTaskModel }) {
-    const { todolistId, taskId, model } = payload
-    return instance.put<BaseResponse<{ item: DomainTask }>>(`/todo-lists/${todolistId}/tasks/${taskId}`, model)
-  },
-  deleteTask(payload: DeleteTaskArgs) {
-    const { todolistId, taskId } = payload
-    return instance.delete<BaseResponse>(`/todo-lists/${todolistId}/tasks/${taskId}`)
-  },
-}
 
 export const { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation, useDeleteTaskMutation } = tasksApi

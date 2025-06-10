@@ -1,7 +1,7 @@
-import { baseApi } from "@/app/baseApi"
-import type { BaseResponse } from "@/common/types"
-import type { Todolist } from "./todolistsApi.types"
+import { baseApi } from "@/app/baseApi";
+import type { DefaultResponse } from "@/common/types";
 import { DomainTodolist } from "../lib/types";
+import { CreateTodolistResponse, todolistSchema, type Todolist } from "./todolistsApi.types";
 
 export const todolistsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -10,8 +10,9 @@ export const todolistsApi = baseApi.injectEndpoints({
       query: () => "todo-lists",
       transformResponse: (todolists: Todolist[]): DomainTodolist[] =>
         todolists.map((todolist) => ({ ...todolist, filter: "all", entityStatus: "idle" })),
+      extraOptions: {dataSchema: todolistSchema.array()}
     }),
-    createTodolist: build.mutation<BaseResponse<{ item: Todolist }>, string>({
+    createTodolist: build.mutation<CreateTodolistResponse, string>({
       invalidatesTags: ["Todolist"],
       query: (title) => ({
         url: "/todo-lists",
@@ -19,14 +20,14 @@ export const todolistsApi = baseApi.injectEndpoints({
         body: { title },
       }),
     }),
-    deleteTodolist: build.mutation<BaseResponse, string>({
+    deleteTodolist: build.mutation<DefaultResponse, string>({
       invalidatesTags: ["Todolist"],
       query: (id) => ({
         url: `/todo-lists/${id}`,
         method: "DELETE",
       }),
     }),
-    changeTodolistTitle: build.mutation<BaseResponse, { id: string; title: string }>({
+    changeTodolistTitle: build.mutation<DefaultResponse, { id: string; title: string }>({
       invalidatesTags: ["Todolist"],
       query: ({ id, title }) => ({
         url: `/todo-lists/${id}`,
@@ -46,18 +47,4 @@ export const {
   useChangeTodolistTitleMutation,
 } = todolistsApi
 
-/* export const _todolistsApi = {
-  getTodolists() {
-    return instance.get<Todolist[]>("/todo-lists")
-  },
-  changeTodolistTitle(payload: { id: string; title: string }) {
-    const { id, title } = payload
-    return instance.put<BaseResponse>(`/todo-lists/${id}`, { title })
-  },
-  createTodolist(title: string) {
-    return instance.post<BaseResponse<{ item: Todolist }>>("/todo-lists", { title })
-  },
-  deleteTodolist(id: string) {
-    return instance.delete<BaseResponse>(`/todo-lists/${id}`)
-  },
-} */
+
