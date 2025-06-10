@@ -6,7 +6,7 @@ import { z } from "zod"
   addedDate: string
   order: number
 } */
-export const domainTaskSchema = z.object({
+export const TodolistSchema = z.object({
   id: z.string(),
   title: z.string(),
   addedDate: z.string(),
@@ -14,4 +14,4 @@ export const domainTaskSchema = z.object({
 })
 
 //enum
-export type Todolist = z.infer<typeof domainTaskSchema>
+export type Todolist = z.infer<typeof TodolistSchema>
