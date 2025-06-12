@@ -1,25 +1,25 @@
-import { instance } from "@/common/instance"
-import { defaultResponseSchema, type BaseResponse, type DefaultResponse } from "@/common/types"
+import { baseApi } from "@/app/baseApi"
+import { defaultResponseSchema, type DefaultResponse } from "@/common/types"
 import {
   getTasksSchema,
   TaskOperationResponse,
   taskOperationResponseSchema,
   type CreateTaskArgs,
   type DeleteTaskArgs,
-  type DomainTask,
   type GetTasksResponse,
-  type UpdateTaskModel,
+  type UpdateTaskModel
 } from "./tasksApi.types"
-import { baseApi } from "@/app/baseApi"
-import { z } from "zod"
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getTasks: build.query<GetTasksResponse, string>({
-      providesTags: ["Task"],
       query: (todolistId) => ({
         url: `/todo-lists/${todolistId}/tasks`,
       }),
+      providesTags: (result, _error, todolistId) =>
+        result
+          ? [...result.items.map(({ id }) => ({ type: "Task", id }) as const), { type: "Task", id: todolistId }]
+          : ["Task"],
       extraOptions: {dataSchema: getTasksSchema}
       //вариант - ошибка вывод в консоль
       /*  transformResponse: (res: GetTasksResponse) => getTasksSchema.parse(res) */
@@ -38,12 +38,12 @@ export const tasksApi = baseApi.injectEndpoints({
 
     }),
     createTask: build.mutation<TaskOperationResponse, CreateTaskArgs>({
-      invalidatesTags: ["Task"],
       query: ({ todolistId, title }) => ({
         url: `/todo-lists/${todolistId}/tasks`,
         method: "POST",
         body: { title },
       }),
+      invalidatesTags: (_result, _error, {todolistId}) => [{type: "Task", id: todolistId}],
       extraOptions: {dataSchema: taskOperationResponseSchema}
     }),
     updateTask: build.mutation<
@@ -54,20 +54,20 @@ export const tasksApi = baseApi.injectEndpoints({
         model: UpdateTaskModel
       }
     >({
-      invalidatesTags: ["Task"],
       query: ({ todolistId, taskId, model }) => ({
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
         method: "PUT",
         body: model,
       }),
+      invalidatesTags: (_result, _error, {taskId}) => [{type: "Task", id: taskId}],
     }),
 
     deleteTask: build.mutation<DefaultResponse, DeleteTaskArgs>({
-      invalidatesTags: ["Task"],
       query: ({ todolistId, taskId }) => ({
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
         method: "DELETE",
       }),
+      invalidatesTags: (_result, _error, {taskId}) => [{type: "Task", id: taskId}],
       extraOptions: {dataSchema: defaultResponseSchema}
     }),
   }),
