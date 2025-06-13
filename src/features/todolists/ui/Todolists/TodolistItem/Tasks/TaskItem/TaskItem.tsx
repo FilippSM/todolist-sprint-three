@@ -2,21 +2,21 @@ import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { TaskStatus } from "@/common/enums"
 import { useDeleteTaskMutation, useUpdateTaskMutation } from "@/features/todolists/api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types"
-import { DomainTodolist } from "@/features/todolists/model/todolists-slice"
+
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
 import IconButton from "@mui/material/IconButton"
 import ListItem from "@mui/material/ListItem"
 import type { ChangeEvent } from "react"
 import { getListItemSx } from "./TaskItem.styles"
+import { DomainTodolist } from "@/features/todolists/lib/types"
 
 type Props = {
   task: DomainTask
-  todolistId: string
   todolist: DomainTodolist
 }
 
-export const TaskItem = ({ task, todolistId, todolist }: Props) => {
+export const TaskItem = ({ task, todolist }: Props) => {
   const [updateTask] = useUpdateTaskMutation()
   
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +50,7 @@ export const TaskItem = ({ task, todolistId, todolist }: Props) => {
   const [deleteTask] = useDeleteTaskMutation()
 
   const deleteTaskHandler = () => {
-    deleteTask({ todolistId, taskId: task.id })
+    deleteTask({ todolistId: todolist.id, taskId: task.id })
   }
 
 

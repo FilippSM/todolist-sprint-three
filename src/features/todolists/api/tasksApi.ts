@@ -9,17 +9,16 @@ import {
   type GetTasksResponse,
   type UpdateTaskModel
 } from "./tasksApi.types"
+import { PAGE_SIZE } from "@/common/constants";
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getTasks: build.query<GetTasksResponse, string>({
-      query: (todolistId) => ({
+    getTasks: build.query<GetTasksResponse, {todolistId: string; params: {page: number}}>({
+      query: ({todolistId, params}) => ({
         url: `/todo-lists/${todolistId}/tasks`,
+        params: {...params, count: PAGE_SIZE}
       }),
-      providesTags: (result, _error, todolistId) =>
-        result
-          ? [...result.items.map(({ id }) => ({ type: "Task", id }) as const), { type: "Task", id: todolistId }]
-          : ["Task"],
+      providesTags: (_result, _error, {todolistId}) =>  [{ type: "Task", id: todolistId }] ,
       extraOptions: {dataSchema: getTasksSchema}
       //вариант - ошибка вывод в консоль
       /*  transformResponse: (res: GetTasksResponse) => getTasksSchema.parse(res) */
@@ -59,7 +58,7 @@ export const tasksApi = baseApi.injectEndpoints({
         method: "PUT",
         body: model,
       }),
-      invalidatesTags: (_result, _error, {taskId}) => [{type: "Task", id: taskId}],
+      invalidatesTags: (_result, _error, {todolistId}) => [{type: "Task", id: todolistId}],
     }),
 
     deleteTask: build.mutation<DefaultResponse, DeleteTaskArgs>({
@@ -67,7 +66,7 @@ export const tasksApi = baseApi.injectEndpoints({
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (_result, _error, {taskId}) => [{type: "Task", id: taskId}],
+      invalidatesTags: (_result, _error, {todolistId}) => [{type: "Task", id: todolistId}],
       extraOptions: {dataSchema: defaultResponseSchema}
     }),
   }),
