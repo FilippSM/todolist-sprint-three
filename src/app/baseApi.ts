@@ -20,4 +20,5 @@ export const baseApi = createApi({
     return result
   }),
   endpoints: () => ({}),
+  keepUnusedDataFor: 1000,
 })

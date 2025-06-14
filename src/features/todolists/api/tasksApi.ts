@@ -58,6 +58,21 @@ export const tasksApi = baseApi.injectEndpoints({
         method: "PUT",
         body: model,
       }),
+      async onQueryStarted({todolistId, taskId, model}, {dispatch, queryFulfilled}) {
+        const patchResult = dispatch(
+          tasksApi.util.updateQueryData('getTasks', { todolistId, params: { page: 1 } }, state => {
+            const index = state.items.findIndex(task => task.id === taskId)
+            if (index !== -1) {
+              state.items[index] = { ...state.items[index], ...model }
+            }
+          })
+        )
+        try {
+          await queryFulfilled
+        } catch (error) {
+          patchResult.undo() //откатиться к предыдцщему действию
+        }
+      },
       invalidatesTags: (_result, _error, {todolistId}) => [{type: "Task", id: todolistId}],
     }),
 

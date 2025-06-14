@@ -35,7 +35,7 @@ export const todolistsApi = baseApi.injectEndpoints({
           }),
         )
         try {
-          const res = await queryFulfilled
+          await queryFulfilled
         } catch (error) {
           patchResult.undo() //откатиться к предыдцщему действию
         }
