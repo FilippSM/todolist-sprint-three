@@ -1,7 +1,7 @@
-import { baseApi } from "@/app/baseApi";
-import type { DefaultResponse } from "@/common/types";
-import { DomainTodolist } from "../lib/types";
-import { CreateTodolistResponse, todolistSchema, type Todolist } from "./todolistsApi.types";
+import { baseApi } from "@/app/baseApi"
+import type { DefaultResponse } from "@/common/types"
+import { DomainTodolist } from "../lib/types"
+import { CreateTodolistResponse, todolistSchema, type Todolist } from "./todolistsApi.types"
 
 export const todolistsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -10,7 +10,7 @@ export const todolistsApi = baseApi.injectEndpoints({
       query: () => "todo-lists",
       transformResponse: (todolists: Todolist[]): DomainTodolist[] =>
         todolists.map((todolist) => ({ ...todolist, filter: "all", entityStatus: "idle" })),
-      extraOptions: {dataSchema: todolistSchema.array()}
+      extraOptions: { dataSchema: todolistSchema.array() },
     }),
     createTodolist: build.mutation<CreateTodolistResponse, string>({
       invalidatesTags: ["Todolist"],
@@ -21,11 +21,26 @@ export const todolistsApi = baseApi.injectEndpoints({
       }),
     }),
     deleteTodolist: build.mutation<DefaultResponse, string>({
-      invalidatesTags: ["Todolist"],
       query: (id) => ({
         url: `/todo-lists/${id}`,
         method: "DELETE",
       }),
+      async onQueryStarted(id, {dispatch, queryFulfilled}) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
+            const index = state.findIndex((todolist) => todolist.id === id)
+            if (index !== -1) {
+              state.splice(index, 1)
+            }
+          }),
+        )
+        try {
+          const res = await queryFulfilled
+        } catch (error) {
+          patchResult.undo() //откатиться к предыдцщему действию
+        }
+      },
+      invalidatesTags: ["Todolist"],
     }),
     changeTodolistTitle: build.mutation<DefaultResponse, { id: string; title: string }>({
       invalidatesTags: ["Todolist"],
@@ -46,5 +61,3 @@ export const {
   useDeleteTodolistMutation,
   useChangeTodolistTitleMutation,
 } = todolistsApi
-
-

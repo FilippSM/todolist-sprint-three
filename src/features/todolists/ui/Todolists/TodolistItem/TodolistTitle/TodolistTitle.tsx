@@ -11,6 +11,7 @@ import styles from "./TodolistTitle.module.css"
 import { useAppDispatch } from "@/common/hooks"
 import { RequestStatus } from "@/common/types"
 import { DomainTodolist } from "@/features/todolists/lib/types"
+import { Try } from "@mui/icons-material"
 
 type Props = {
   todolist: DomainTodolist
@@ -22,24 +23,8 @@ export const TodolistTitle = ({ todolist }: Props) => {
   const [deleteTodolist] = useDeleteTodolistMutation()
   const [changeTodolistTitle] = useChangeTodolistTitleMutation()
 
-  const dispatch = useAppDispatch()
-
-  const changeTodolistStatus = (entityStatus: RequestStatus) => {
-    dispatch(
-      todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
-        const todolist = state.find((todolist) => todolist.id === id)
-        if (todolist) {
-          todolist.entityStatus = entityStatus
-        }
-      }),
-    )
-  }
-
   const deleteTodolistHandler = () => {
-    changeTodolistStatus('loading')
-    deleteTodolist(id).unwrap().catch(() => { //unwrap() - чтобы попало в catch
-      changeTodolistStatus('failed')
-    })
+    deleteTodolist(id)
   }
 
   const changeTodolistTitleHandler = (title: string) => {
