@@ -58,30 +58,29 @@ export const tasksApi = baseApi.injectEndpoints({
         body: model,
       }),
       async onQueryStarted({ todolistId, taskId, model }, { dispatch, queryFulfilled, getState }) {
-        const cachedArgsForQuery = tasksApi.util.selectCachedArgsForQuery(getState(), 'getTasks')
+        const cachedArgsForQuery = tasksApi.util.selectCachedArgsForQuery(getState(), "getTasks")
 
         let patchResults: any[] = []
 
         cachedArgsForQuery.forEach(({ params }) => {
           patchResults.push(
             dispatch(
-              tasksApi.util.updateQueryData(
-                'getTasks',
-                { todolistId, params: { page: params.page } },
-                state => {
-                  const index = state.items.findIndex(task => task.id === taskId)
-                  if (index !== -1) {
-                    state.items[index] = { ...state.items[index], ...model }
-                  }
+              tasksApi.util.updateQueryData("getTasks", { todolistId, params: { page: params.page } }, (state) => {
+                const index = state.items.findIndex((task) => task.id === taskId)
+                if (index !== -1) {
+                  state.items[index] = { ...state.items[index], ...model }
                 }
-              )
-            )
+              }),
+            ),
           )
         })
         try {
           await queryFulfilled
         } catch (error) {
-          patchResult.undo() //откатиться к предыдцщему действию
+          patchResults.forEach((patchResult) => {
+            //откатиться к предыдцщему действию
+            patchResult.undo()
+          })
         }
       },
       invalidatesTags: (_result, _error, { todolistId }) => [{ type: "Task", id: todolistId }],

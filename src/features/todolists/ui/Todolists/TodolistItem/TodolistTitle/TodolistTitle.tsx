@@ -1,17 +1,13 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import {
-  todolistsApi,
   useChangeTodolistTitleMutation,
-  useDeleteTodolistMutation,
+  useDeleteTodolistMutation
 } from "@/features/todolists/api/todolistsApi"
 
+import { DomainTodolist } from "@/features/todolists/lib/types"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import styles from "./TodolistTitle.module.css"
-import { useAppDispatch } from "@/common/hooks"
-import { RequestStatus } from "@/common/types"
-import { DomainTodolist } from "@/features/todolists/lib/types"
-import { Try } from "@mui/icons-material"
 
 type Props = {
   todolist: DomainTodolist
