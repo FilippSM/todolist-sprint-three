@@ -14,7 +14,7 @@ import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import { useLoginMutation } from "../../api/authApi"
+import { useGetCaptchaUrlQuery, useLoginMutation } from "../../api/authApi"
 import { LoginInputs, loginSchema } from "../../lib/schemas"
 import s from "./Login.module.css"
 
@@ -24,6 +24,7 @@ export const Login = () => {
   const theme = getTheme(themeMode)
 
   const [login] = useLoginMutation()
+  const { data: captchaData, refetch: refreshCaptcha } = useGetCaptchaUrlQuery()
 
   const dispatch = useAppDispatch()
 
@@ -34,19 +35,32 @@ export const Login = () => {
     control,
     formState: { errors },
   } = useForm<LoginInputs>({
-    defaultValues: { email: "", password: "", rememberMe: false },
+    defaultValues: { email: "", password: "", rememberMe: false, captcha: "" },
     resolver: zodResolver(loginSchema),
   }) //значение по умолчанию
 
-  const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    login(data).then((res) => {
+  const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
+    /* login(data).then((res) => {
       if (res.data?.resultCode === ResultCode.Success) {
         //local storage
         localStorage.setItem(AUTH_TOKEN, res.data.data.token)
         dispatch(setIsloggedAC({isLoggedIn: true}))
       }
     })
-    reset()
+    getCaptchaUrl(data).then((res) => {
+      
+    })
+    reset() */
+    const loginResult = await login(data)
+
+    if (loginResult.data?.resultCode === ResultCode.Success) {
+      localStorage.setItem(AUTH_TOKEN, loginResult.data.data.token)
+      dispatch(setIsloggedAC({ isLoggedIn: true }))
+      reset()
+    } else if (loginResult.data?.resultCode === 10d) {
+      // Если требуется капча - запрашиваем новую
+      await refreshCaptcha()
+    }
   }
 
   // 1 var
@@ -60,6 +74,8 @@ export const Login = () => {
     navigate(Path.Main)
   }
 }, [isLoggetIn]) */
+
+  const showCaptcha = loginData?.resultCode === 10;
 
   return (
     <Grid container justifyContent={"center"}>
