@@ -16,18 +16,24 @@ export const TasksPagination = ({ totalCount, page, setPage }: Props) => {
   }
 
   return (
-    <>
-      <Pagination
-        count={Math.ceil(totalCount / PAGE_SIZE)}
-        page={page}
-        onChange={changePage}
-        shape="rounded"
-        color="primary"
-        className={styles.pagination}
-      />
-      <div className={styles.totalCount}>
-        <Typography variant="caption">Total: {totalCount}</Typography>
-      </div>
-    </>
-  )
+  <>
+    {totalCount > PAGE_SIZE ? (
+      <>
+        <Pagination
+          count={Math.ceil(totalCount / PAGE_SIZE)}
+          page={page}
+          onChange={changePage}
+          shape="rounded"
+          color="primary"
+          className={styles.pagination}
+        />
+        <div className={styles.totalCount}>
+          <Typography variant="caption">Total: {totalCount}</Typography>
+        </div>
+      </>
+    ) : (
+      ""
+    )}
+  </>
+);
 }
