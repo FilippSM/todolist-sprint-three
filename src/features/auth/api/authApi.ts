@@ -20,6 +20,12 @@ export const authApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+
+    /* 
+    Теперь я понимаю проблему. Сервер возвращает каптчу в нестандартном 
+    формате - URL находится в корне объекта, а не внутри data
+    поэтому нада отдельная типизация
+    */
     getCaptchaUrl: build.query<CaptchaResponse, void>({
       query: () => ({
         url: "security/get-captcha-url"
