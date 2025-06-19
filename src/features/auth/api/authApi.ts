@@ -1,5 +1,5 @@
 import { baseApi } from "@/app/baseApi";
-import { BaseResponse } from "@/common/types";
+import { BaseResponse, CaptchaResponse } from "@/common/types";
 import { LoginArgs } from "./authApi.types";
 
 export const authApi = baseApi.injectEndpoints({
@@ -20,7 +20,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getCaptchaUrl: build.query<BaseResponse<{ url: string }>, void>({
+    getCaptchaUrl: build.query<CaptchaResponse, void>({
       query: () => ({
         url: "security/get-captcha-url"
       }),

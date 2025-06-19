@@ -9,6 +9,7 @@ export const fieldErrorSchema = z.object({
 type FieldError = z.infer<typeof fieldErrorSchema>
  
 export type BaseResponse<T = {}> = {
+
   //url: string | undefined //captcha
   data: T
   resultCode: ResultCode
@@ -28,3 +29,7 @@ export const defaultResponseSchema = baseResponseSchema(z.object({}))
 export type DefaultResponse = z.infer<typeof defaultResponseSchema>
 
 export type RequestStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
+
+export type CaptchaResponse = {
+    url: string;
+};
