@@ -9,6 +9,7 @@ export const fieldErrorSchema = z.object({
 type FieldError = z.infer<typeof fieldErrorSchema>
  
 export type BaseResponse<T = {}> = {
+  //url: string | undefined //captcha
   data: T
   resultCode: ResultCode
   messages: string[]

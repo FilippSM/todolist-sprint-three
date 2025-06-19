@@ -17,6 +17,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { useGetCaptchaUrlQuery, useLoginMutation } from "../../api/authApi"
 import { LoginInputs, loginSchema } from "../../lib/schemas"
 import s from "./Login.module.css"
+import { useState } from "react"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -24,6 +25,7 @@ export const Login = () => {
   const theme = getTheme(themeMode)
 
   const [login] = useLoginMutation()
+  const [captchaRequired, setCaptchaRequired] = useState(false)
   const { data: captchaData, refetch: refreshCaptcha } = useGetCaptchaUrlQuery()
 
   const dispatch = useAppDispatch()
@@ -38,6 +40,7 @@ export const Login = () => {
     defaultValues: { email: "", password: "", rememberMe: false, captcha: "" },
     resolver: zodResolver(loginSchema),
   }) //значение по умолчанию
+
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     /* login(data).then((res) => {
@@ -57,9 +60,11 @@ export const Login = () => {
       localStorage.setItem(AUTH_TOKEN, loginResult.data.data.token)
       dispatch(setIsloggedAC({ isLoggedIn: true }))
       reset()
-    } else if (loginResult.data?.resultCode === 10d) {
-      // Если требуется капча - запрашиваем новую
-      await refreshCaptcha()
+      setCaptchaRequired(false)
+    } else if (loginResult.data?.resultCode === 10) {
+      // Код 10 означает, что требуется капча
+      setCaptchaRequired(true)
+      refreshCaptcha() // Запрашиваем новую капчу
     }
   }
 
@@ -74,8 +79,6 @@ export const Login = () => {
     navigate(Path.Main)
   }
 }, [isLoggetIn]) */
-
-  const showCaptcha = loginData?.resultCode === 10;
 
   return (
     <Grid container justifyContent={"center"}>
@@ -123,6 +126,24 @@ export const Login = () => {
                 }
               />
             }
+
+            {captchaRequired && captchaData && (
+              <>
+                <img
+                  src={captchaData.url}
+                  alt="captcha"
+                  onClick={refreshCaptcha} // Обновляем капчу по клику
+                  style={{ cursor: "pointer", margin: "10px 0" }}
+                />
+                <TextField
+                  label="Captcha"
+                  margin="normal"
+                  {...register("captcha")}
+                  error={!!errors.captcha}
+                  helperText={errors.captcha?.message}
+                />
+              </>
+            )}
 
             <Button type="submit" variant="contained" color="primary">
               Login

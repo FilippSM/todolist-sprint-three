@@ -20,7 +20,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getCaptchaUrl: build.query<BaseResponse, void>({
+    getCaptchaUrl: build.query<BaseResponse<{ url: string }>, void>({
       query: () => ({
         url: "security/get-captcha-url"
       }),
