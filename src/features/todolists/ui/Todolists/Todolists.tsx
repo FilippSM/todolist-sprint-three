@@ -2,10 +2,10 @@ import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Paper from "@mui/material/Paper";
 import { useGetTodolistsQuery } from "../../api/todolistsApi";
-import { DomainTodolist } from "../../model/todolists-slice";
 import { TodolistItem } from "./TodolistItem/TodolistItem";
 import { containerSx } from './../../../../common/styles/container.styles';
 import { TodolistSkeleton } from "./TodolistSkeleton/TodolistSkeleton";
+import { DomainTodolist } from "../../lib/types";
 
 export const Todolists = () => {
   const {data: todolists, isLoading} = useGetTodolistsQuery()

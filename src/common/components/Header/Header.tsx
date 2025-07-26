@@ -1,7 +1,5 @@
 import { changeThemeModeAC, selectIsLoggedIn, selectStatus, selectThemeMode, setIsloggedAC } from "@/app/app-slice.ts"
 import { baseApi } from "@/app/baseApi"
-
-import { clearDataAC } from "@/common/actions"
 import { NavButton } from "@/common/components/NavButton/NavButton"
 import { AUTH_TOKEN } from "@/common/constants"
 import { ResultCode } from "@/common/enums"
