@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d dist --dotfiles",
     "predeploy": "pnpm run build"
   },
   "dependencies": {
