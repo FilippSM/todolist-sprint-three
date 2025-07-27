@@ -1,6 +1,7 @@
 {
   "name": "todolist-12",
   "private": true,
+  "homepage": "http://FilippSM.github.io/CalculatorReact",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -8,7 +9,7 @@
     "build": "tsc -b && vite build --base=./",
     "test": "vitest",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist --dotfiles",
+    "deploy": "gh-pages -d dist",
     "predeploy": "pnpm run build"
   },
   "dependencies": {
