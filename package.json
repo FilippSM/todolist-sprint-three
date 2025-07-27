@@ -1,16 +1,13 @@
 {
   "name": "todolist-12",
   "private": true,
-  "homepage": "http://FilippSM.github.io/todolist-sprint-three",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
-    "build": "tsc -b && vite build --base=./",
+    "build": "tsc -b && vite build",
     "test": "vitest",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
-    "predeploy": "pnpm run build"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
