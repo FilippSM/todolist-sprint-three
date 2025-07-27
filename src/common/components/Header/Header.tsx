@@ -54,7 +54,7 @@ export const Header = () => {
           </IconButton>
           <div>
             {isLoggetIn && <NavButton onClick={logoutHandler}>Logout</NavButton>}
-            <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
+            <NavButton background={theme.palette.primary.dark}>FaqQQ</NavButton>
             <Switch color={"default"} onChange={changeMode} />
           </div>
         </Container>
